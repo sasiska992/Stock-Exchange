@@ -1,0 +1,29 @@
+{% extends "index.html" %}
+
+{% block  content %}
+    <p>Акции {{ data["Meta Data"]["2. Symbol"] }}</p>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Цена открытия</th>
+            <th scope="col">Наивысшая цена</th>
+            <th scope="col">Наименьшая цена</th>
+            <th scope="col">Цена закрытия</th>
+            <th scope="col">Количество проданных бумаг</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for time, info in data["Time Series (15min)"].items() %}
+
+            <tr>
+                <th scope="row">{{ time }}</th>
+                {% for key, value in info.items() %}
+                    <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+{% endblock %}
