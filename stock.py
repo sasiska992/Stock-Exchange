@@ -52,7 +52,7 @@ def buy_stock(symbol: str, count: int):
     data = get_stock_info(symbol)
     buying = BuyingStock(data["current_price"], symbol, count)
     buying.add(db)
-    return f"вы успешно купили акции {symbol} по {buying.buying_price}"
+    return f"вы успешно купили {count} акций {symbol} по {buying.buying_price}"
 
 
 @stocks.get("/my_stocks")
@@ -60,13 +60,21 @@ def my_stocks():
     data = db.query(BuyingStock).all()
     current_prices = {}
     buying_stocks = {
-        # symbol : [count, buying_price]
+        # "symbol" :
+        #        "buying" : [
+        #           1:{
+        #               count, buying_price, current_price, delta
+        #             }
+        #           2:{
+        #               count, buying_price, current_price, delta
+        #             }
+        #        ]
     }
     for stock in data:
         current_prices[stock.symbol] = get_stock_info(stock.symbol)["current_price"]
         if stock.symbol in buying_stocks.keys():
-            buying_stocks[stock.symbol] = [buying_stocks[stock.symbol][0] + 1, current_prices[stock.symbol]]
+
         else:
-            buying_stocks[stock.symbol] = [1, current_prices[stock.symbol]]
+
 
     return buying_stocks
