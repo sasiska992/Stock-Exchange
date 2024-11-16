@@ -1,7 +1,7 @@
 from settings import finhub_client
 
 
-def get_stock_info(symbol: str):
+def get_stock_info(symbol: str) -> dict:
     data = finhub_client.quote(symbol)
     return {
         "current_price": data["c"],

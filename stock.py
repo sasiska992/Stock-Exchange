@@ -3,7 +3,8 @@ from settings import finhub_client
 from utils.stocks import get_stock_info
 from fastapi import Request, APIRouter
 from settings import POLYGON_API_KEY
-from . import templates
+from main import templates
+from models import BuyingStock, db
 
 stocks = APIRouter()
 
@@ -48,12 +49,20 @@ def get_prices(request: Request):
 
 @stocks.post("/buy_stock")
 def buy_stock(symbol: str):
-    return "вы купили " + symbol
+    data = get_stock_info(symbol)
+    buying = BuyingStock(data["current_price"], symbol)
+    db.add(buying)
+    db.commit()
+    return f"вы успешно купили акции {symbol} по {buying.buying_price}"
 
 
-@stocks.get("/test")
-def test(request: Request):
-    return templates.TemplateResponse(
-        name="test_template/index.html",
-        request=request,
-    )
+@stocks.get("/my_stocks")
+def my_stocks():
+    data = db.query(BuyingStock).all()
+    current_prices = {}
+    buying_stocks = {}
+    for stock in data:
+        current_prices[stock.symbol] = get_stock_info(stock.symbol)
+
+
+    return buying_stocks 
