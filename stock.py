@@ -1,6 +1,6 @@
 from typing import Union
 from settings import finhub_client
-from utils.stocks import get_stock_info
+from utils.stocks import get_stock_info, get_dollar_to_rub_course
 from fastapi import Request, APIRouter
 from settings import POLYGON_API_KEY
 from main import templates
@@ -57,24 +57,48 @@ def buy_stock(symbol: str, count: int):
 
 @stocks.get("/my_stocks")
 def my_stocks():
+    print(get_stock_info("SBER"))
+    rub_to_dollar = get_dollar_to_rub_course()
     data = db.query(BuyingStock).all()
     current_prices = {}
     buying_stocks = {
         # "symbol" :
         #        "buying" : [
         #           1:{
-        #               count, buying_price, current_price, delta
+        #               count, buying_price, current_price, delta, total_delta
         #             }
         #           2:{
-        #               count, buying_price, current_price, delta
+        #               count, buying_price, current_price, delta, total_delta
         #             }
         #        ]
     }
     for stock in data:
         current_prices[stock.symbol] = get_stock_info(stock.symbol)["current_price"]
-        if stock.symbol in buying_stocks.keys():
-
+        if stock.symbol not in buying_stocks.keys():
+            buying_stocks[stock.symbol] = {
+                "buying": [
+                    {
+                        1: {
+                            "count": stock.count,
+                            "buying_price": stock.buying_price,
+                            "current_price": current_prices[stock.symbol] * rub_to_dollar,
+                            "delta": stock.buying_price - current_prices[stock.symbol],
+                            "total_delta": stock.buying_price * stock.count - current_prices[stock.symbol] * stock.count,
+                        }
+                    }
+                ]
+            }
         else:
-
+            stock_index = list(buying_stocks[stock.symbol]["buying"][-1].keys())[0] + 1
+            buying_stocks[stock.symbol]["buying"].append({
+                stock_index: {
+                    "count": stock.count,
+                    "buying_price": stock.buying_price,
+                    "current_price": current_prices[stock.symbol] * rub_to_dollar,
+                    "delta": stock.buying_price * stock.count - current_prices[stock.symbol] * stock.count,
+                    "total_delta": stock.buying_price * stock.count - current_prices[stock.symbol] * stock.count,
+                }
+            }
+            )
 
     return buying_stocks

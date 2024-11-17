@@ -1,4 +1,6 @@
-from settings import finhub_client
+import requests
+
+from settings import finhub_client, EXCHANGERATE_API_KEY
 
 
 def get_stock_info(symbol: str) -> dict:
@@ -10,3 +12,14 @@ def get_stock_info(symbol: str) -> dict:
         "open_price": data['o'],
         "previous_close": data['pc']
     }
+
+
+def get_dollar_to_rub_course() -> float:
+    url = f' https://v6.exchangerate-api.com/v6/{EXCHANGERATE_API_KEY}/latest/USD'  # Пример для получения курса USD к другим валютам
+
+    response = requests.get(url)
+    data = response.json()
+    # Получаем курс рубля
+    rub_rate = data['conversion_rates']['RUB']
+
+    return rub_rate
