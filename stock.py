@@ -9,6 +9,7 @@ from models import BuyingStock, db
 stocks = APIRouter()
 
 
+@stocks.get('/')
 @stocks.get('/app')
 def index(request: Request):
     return templates.TemplateResponse(
