@@ -9,7 +9,7 @@ from models import BuyingStock, db
 stocks = APIRouter()
 
 
-@stocks.get('/')
+@stocks.get('/app')
 def index(request: Request):
     return templates.TemplateResponse(
         name="index.html",
@@ -73,7 +73,8 @@ def my_stocks():
         #        ]
     }
     for stock in data:
-        current_prices[stock.symbol] = get_stock_info(stock.symbol)["current_price"]
+        current_prices[stock.symbol] = get_stock_info(stock.symbol)[
+            "current_price"]
         if stock.symbol not in buying_stocks.keys():
             buying_stocks[stock.symbol] = {
                 "buying": [
@@ -89,7 +90,8 @@ def my_stocks():
                 ]
             }
         else:
-            stock_index = list(buying_stocks[stock.symbol]["buying"][-1].keys())[0] + 1
+            stock_index = list(
+                buying_stocks[stock.symbol]["buying"][-1].keys())[0] + 1
             buying_stocks[stock.symbol]["buying"].append({
                 stock_index: {
                     "count": stock.count,
